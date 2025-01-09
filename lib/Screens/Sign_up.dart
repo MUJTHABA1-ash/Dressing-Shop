@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,11 +16,14 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
   TextEditingController confirmpass = TextEditingController();
   final Formkey = GlobalKey<FormState>();
   FirebaseAuth Auth = FirebaseAuth.instance;
+  final user = FirebaseFirestore.instance.collection("user");
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +74,37 @@ class _SignUpState extends State<SignUp> {
                     height: 60.h,
                     width: 310.w,
                     child: TextFormField(
+                      controller: name,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.person),
+                          labelText: 'Name',
+                          labelStyle: TextStyle(
+                            color: Color(0xFF676767),
+                            fontSize: 12.sp,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.r))),
+                      validator: (name) {
+                        if (name!.isEmpty) {
+                          return "Enter Your Name";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 20.w),
+                  child: SizedBox(
+                    height: 60.h,
+                    width: 310.w,
+                    child: TextFormField(
                       controller: email,
                       decoration: InputDecoration(
                           prefixIcon: Icon(Icons.person),
-                          labelText: 'Username or Email',
+                          labelText: 'Email',
                           labelStyle: TextStyle(
                             color: Color(0xFF676767),
                             fontSize: 12.sp,
@@ -198,6 +229,11 @@ class _SignUpState extends State<SignUp> {
                                 password: pass.text.toString())
                             .then(
                           (value) => {
+                            user.doc(value.user!.uid.toString()).set({"id":value.user!.uid.toString(),
+                              "name":name.text.toString(),
+                              "email":email.text.toString(),
+                              "profile": "",
+                            }),
                             ToastMessage()
                                 .toastmessage(message: 'Successfully Registerd'),
                             Navigator.of(context).push(

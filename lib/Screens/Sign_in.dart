@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled12/Screens/Auth_Service.dart';
 import 'package:untitled12/Screens/Bottom_Navigation.dart';
 import 'package:untitled12/Screens/Forget_password.dart';
 import 'package:untitled12/Screens/Home_Screen.dart';
@@ -20,7 +22,32 @@ class _SignInState extends State<SignIn> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   FirebaseAuth Auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
   final Formkey = GlobalKey<FormState>();
+  Future<void> signinwithgoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn
+          .signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!
+          .authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken
+      );
+
+      final UserCredential userCredential = await Auth.signInWithCredential(
+          credential);
+      final User? user = userCredential.user;
+      if (user != null) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => BottomNavigation()));
+        ToastMessage().toastmessage(message: 'succusfully completed');
+      }
+    } catch (e) {
+      ToastMessage().toastmessage(message: e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -209,20 +236,25 @@ class _SignInState extends State<SignIn> {
                   padding: EdgeInsets.only(left: 70.w),
                   child: Row(
                     children: [
-                      Container(
-                        width: 65.w,
-                        height: 55.h,
-                        padding: const EdgeInsets.all(15),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: ShapeDecoration(
-                          color: Color(0xFFFBF3F5),
-                          shape: RoundedRectangleBorder(
-                            side:
-                                BorderSide(width: 1, color: Color(0xFFF73658)),
-                            borderRadius: BorderRadius.circular(40),
+                      GestureDetector(onTap: (){
+                        signinwithgoogle();
+                        AuthService().signInWithGoogle(context);
+                      },
+                        child: Container(
+                          width: 65.w,
+                          height: 55.h,
+                          padding: const EdgeInsets.all(15),
+                          clipBehavior: Clip.antiAlias,
+                          decoration: ShapeDecoration(
+                            color: Color(0xFFFBF3F5),
+                            shape: RoundedRectangleBorder(
+                              side:
+                                  BorderSide(width: 1, color: Color(0xFFF73658)),
+                              borderRadius: BorderRadius.circular(40),
+                            ),
                           ),
+                          child: Image.asset("assets/ggl.png"),
                         ),
-                        child: Image.asset("assets/ggl.png"),
                       ),
                       SizedBox(
                         width: 10.w,
