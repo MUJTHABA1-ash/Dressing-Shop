@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         builder: (_, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Dressing shop',
+            title: 'Stylish',
             theme: ThemeData(
               // This is the theme of your application.
               //
